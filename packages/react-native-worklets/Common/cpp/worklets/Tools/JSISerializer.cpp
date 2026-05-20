@@ -2,23 +2,22 @@
 
 #include <cxxabi.h>
 
-#include <iostream>
+#include <memory>
 #include <sstream>
 #include <string>
 #include <vector>
 
 namespace worklets {
 
-const std::vector<std::string> SUPPORTED_ERROR_TYPES = {
-    "Error",
-    "AggregateError",
-    "EvalError",
-    "RangeError",
-    "ReferenceError",
-    "SyntaxError",
-    "TypeError",
-    "URIError",
-    "InternalError"};
+const std::vector<std::string> SUPPORTED_ERROR_TYPES = {"Error",
+                                                        "AggregateError",
+                                                        "EvalError",
+                                                        "RangeError",
+                                                        "ReferenceError",
+                                                        "SyntaxError",
+                                                        "TypeError",
+                                                        "URIError",
+                                                        "InternalError"};
 
 const std::vector<std::string> SUPPORTED_INDEXED_COLLECTION_TYPES = {
     "Int8Array",
@@ -71,8 +70,9 @@ static inline bool isInstanceOf(jsi::Runtime &rt, const jsi::Object &object, con
   return getObjectTypeName(rt, object) == type;
 }
 
-static inline bool
-isInstanceOfAny(jsi::Runtime &rt, const jsi::Object &object, const std::vector<std::string> &supportedTypes) {
+static inline bool isInstanceOfAny(jsi::Runtime &rt,
+                                   const jsi::Object &object,
+                                   const std::vector<std::string> &supportedTypes) {
   auto instanceType = getObjectTypeName(rt, object);
 
   return std::find(supportedTypes.begin(), supportedTypes.end(), instanceType) != supportedTypes.end();
@@ -117,14 +117,14 @@ std::string JSISerializer::stringifyFunction(const jsi::Function &func) {
 
 std::string JSISerializer::stringifyHostObject(jsi::HostObject &hostObject) {
   int status = -1;
-  char *hostObjClassName = abi::__cxa_demangle(typeid(hostObject).name(), NULL, NULL, &status);
+  std::unique_ptr<char, decltype(&std::free)> hostObjClassName(
+      abi::__cxa_demangle(typeid(hostObject).name(), nullptr, nullptr, &status), std::free);
   if (status != 0) {
     return "[jsi::HostObject]";
   }
 
   std::stringstream ss;
-  ss << "[jsi::HostObject(" << hostObjClassName << ")";
-  std::free(hostObjClassName);
+  ss << "[jsi::HostObject(" << hostObjClassName.get() << ")";
 
   auto props = hostObject.getPropertyNames(rt_);
   auto propsCount = props.size();
