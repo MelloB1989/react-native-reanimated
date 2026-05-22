@@ -12,11 +12,7 @@ import type {
 import type { SerializableRef, WorkletFunction } from 'react-native-worklets';
 
 import type { AnyRecord, Maybe } from './common';
-import type {
-  CSSAnimationProperties,
-  CSSPseudoSelectorStyle,
-  CSSTransitionProperties,
-} from './css';
+import type { CSSAnimationProperties, CSSTransitionProperties } from './css';
 import type { EasingFunctionFactory } from './Easing';
 import type { AnimatedStyleHandle, DefaultStyle } from './hook/commonTypes';
 
@@ -476,13 +472,10 @@ type WithReanimatedCSS<Style> =
 
 // Ideally we want AnimatedStyle to not be generic, but there are
 // so many dependencies on it being generic that it's not feasible at the moment.
-// TODO: drop `CSSPseudoSelectorStyle` from this union once `WithReanimatedCSS`
-// is fixed to pull all CSS-related props (incl. pseudo) — see PR #9472 review.
 export type AnimatedStyle<Style = DefaultStyle> =
   | WithReanimatedCSS<Style>
   | MaybeSharedValueRecursive<Style>
-  | AnimatedStyleHandle<Style>
-  | CSSPseudoSelectorStyle;
+  | AnimatedStyleHandle<Style>;
 
 export type AnimatedTransform = MaybeSharedValueRecursive<
   TransformsStyle['transform']
